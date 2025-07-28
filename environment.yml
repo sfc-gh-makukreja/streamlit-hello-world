@@ -2,6 +2,6 @@ name: streamlit_hello_world
 channels:
   - snowflake
 dependencies:
-  - streamlit>=1.28.0
-  - pandas>=1.5.0
-  - snowflake-snowpark-python>=1.8.0 
+  - streamlit
+  - pandas
+  - snowflake-snowpark-python 
