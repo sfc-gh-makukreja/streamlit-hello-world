@@ -24,22 +24,13 @@ CREATE OR REPLACE SECRET git_creds
   COMMENT = 'Git credentials for repository access';
 */
 
--- Create warehouse for the application
-CREATE WAREHOUSE IF NOT EXISTS HELLO_WORLD_WH
-  WITH WAREHOUSE_SIZE = 'XSMALL'
-  AUTO_SUSPEND = 60
-  AUTO_RESUME = TRUE
-  COMMENT = 'Warehouse for Hello World Streamlit app';
+-- Use existing warehouse (CUBE_TESTING from your connection)
+USE WAREHOUSE CUBE_TESTING;
 
--- Use the warehouse
-USE WAREHOUSE HELLO_WORLD_WH;
+-- Use existing database (CUBE_TESTING from your connection)
+USE DATABASE CUBE_TESTING;
 
--- Create database and schema
-CREATE DATABASE IF NOT EXISTS HELLO_WORLD_DB
-  COMMENT = 'Database for Hello World Streamlit app';
-
-USE DATABASE HELLO_WORLD_DB;
-
+-- Create schema for our app in the existing database
 CREATE SCHEMA IF NOT EXISTS HELLO_WORLD_SCHEMA
   COMMENT = 'Schema for Hello World Streamlit app';
 
@@ -47,9 +38,8 @@ USE SCHEMA HELLO_WORLD_SCHEMA;
 
 -- Create Git repository (update the ORIGIN URL with your actual GitHub repository)
 CREATE OR REPLACE GIT REPOSITORY hello_world_repo
-  API_INTEGRATION = git_api_integration
-  GIT_CREDENTIALS = git_creds
-  ORIGIN = 'https://github.com/YOUR_USERNAME/streamlit-hello-world.git'
+  API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
+  ORIGIN = 'https://github.com/sfc-gh-makukreja/streamlit-hello-world.git'
   COMMENT = 'Git repository for Hello World Streamlit app';
 
 -- Create stage for the application files
@@ -61,14 +51,10 @@ CREATE STAGE IF NOT EXISTS hello_world_stage
 CREATE OR REPLACE STREAMLIT hello_world_app
   FROM @hello_world_repo/branches/main/
   MAIN_FILE = 'streamlit_app.py'
-  QUERY_WAREHOUSE = HELLO_WORLD_WH
+  QUERY_WAREHOUSE = CUBE_TESTING
   TITLE = 'Hello World - Snowflake Streamlit'
   COMMENT = 'Hello World Streamlit app deployed from Git';
 
--- Grant necessary permissions (adjust as needed for your environment)
-GRANT USAGE ON WAREHOUSE HELLO_WORLD_WH TO ROLE SYSADMIN;
-GRANT USAGE ON DATABASE HELLO_WORLD_DB TO ROLE SYSADMIN;
-GRANT USAGE ON SCHEMA HELLO_WORLD_SCHEMA TO ROLE SYSADMIN;
 
 -- Show the created Streamlit app
 SHOW STREAMLITS;
